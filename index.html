@@ -78,6 +78,20 @@
         transform: translateY(0);
       }
 
+      .info-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .info-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+      }
+
       @media (max-width: 600px) {
         .container {
           padding: 30px 20px;
@@ -111,6 +125,31 @@
       </div>
 
       <a href="Build/index.html?spawner_button_test" class="start-button">Start Experiment</a>
+
+      <a href="#" id="info-link" class="info-link">View experiment information (PDF)</a>
     </div>
+
+    <script>
+      // Extract query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const params = Array.from(urlParams.keys());
+      const experimentId = params[0] || '';
+      const participantId = params[1] || '';
+
+      // Update the PDF link with the experiment ID
+      const infoLink = document.getElementById('info-link');
+      if (experimentId) {
+        infoLink.href = `https://test-experiment-data-storage.s3.eu-north-1.amazonaws.com/${encodeURIComponent(experimentId)}/Untitled+document.pdf`;
+      } else {
+        infoLink.style.display = 'none'; // Hide link if no experiment ID
+      }
+
+      // Update the start button to pass along the parameters
+      const startButton = document.querySelector('.start-button');
+      const currentHref = startButton.getAttribute('href');
+      if (experimentId && participantId) {
+        startButton.href = `${currentHref}&${experimentId}&${participantId}`;
+      }
+    </script>
   </body>
 </html>
