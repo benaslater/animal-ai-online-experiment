@@ -157,7 +157,9 @@
       if (experimentId) {
         infoLink.href = `https://test-experiment-data-storage.s3.eu-north-1.amazonaws.com/${encodeURIComponent(experimentId)}/Untitled+document.pdf`;
       } else {
-        infoLink.style.display = 'none'; // Hide link if no experiment ID
+        infoLink.textContent = 'Error: No experiment ID found. Cannot display experiment information.';
+        infoLink.removeAttribute('href');
+        infoLink.style.color = 'red';
       }
 
       // Update the start button to pass along the parameters
