@@ -169,7 +169,7 @@
       const startButton = document.querySelector('.start-button');
       const currentHref = startButton.getAttribute('href');
       if (experimentId && participantId) {
-        startButton.href = `${currentHref}&${experimentId}&${participantId}`;
+        startButton.href = `${currentHref}?${experimentId}&${participantId}`;
       }
     </script>
   </body>
