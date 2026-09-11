@@ -30,14 +30,16 @@
         border-radius: 12px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         max-width: 700px;
+        width: 100%;
         padding: 50px 40px;
         text-align: center;
       }
 
       h1 {
         font-size: 2.5rem;
+        line-height: 1.25;
         color: #667eea;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
       }
 
       .subtitle {
@@ -57,6 +59,96 @@
         margin-bottom: 15px;
       }
 
+      .loading-message {
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .info-line {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 30px;
+        overflow-wrap: anywhere;
+      }
+
+      .info-line a {
+        color: #667eea;
+        font-weight: 500;
+      }
+
+      .consent-section {
+        margin: 0 0 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 2px solid #667eea;
+        text-align: left;
+      }
+
+      .info-sheet {
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .info-sheet a {
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .consent-intro {
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .consent-list {
+        max-height: 45vh;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #dde;
+        border-radius: 6px;
+      }
+
+      .consent-item + .consent-item {
+        border-top: 1px solid #eee;
+      }
+
+      .consent-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+        user-select: none;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .consent-checkbox input[type="checkbox"] {
+        margin-top: 4px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .consent-final {
+        margin-top: 15px;
+        font-weight: 700;
+      }
+
+      .consent-final .consent-checkbox {
+        padding: 12px 0 0;
+      }
+
+      .consent-checkbox.disabled {
+        opacity: 0.5;
+      }
+
+      .consent-checkbox.disabled,
+      .consent-checkbox.disabled input[type="checkbox"] {
+        cursor: not-allowed;
+      }
+
       .start-button {
         display: inline-block;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -66,7 +158,7 @@
         border-radius: 50px;
         font-size: 1.2rem;
         font-weight: 600;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
       }
 
@@ -79,59 +171,10 @@
         transform: translateY(0);
       }
 
-      .info-link {
-        display: inline-block;
-        margin-top: 20px;
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
-      }
-
-      .info-link:hover {
-        color: #764ba2;
-        text-decoration: underline;
-      }
-
-      .consent-section {
-        margin: 30px 0;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        border: 2px solid #667eea;
-      }
-
-      .consent-checkbox {
-        display: flex;
-        align-items: flex-start;
-        text-align: left;
-        cursor: pointer;
-        user-select: none;
-      }
-
-      .consent-checkbox input[type="checkbox"] {
-        margin-right: 12px;
-        margin-top: 4px;
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
-
-      .consent-checkbox label {
-        cursor: pointer;
-        line-height: 1.6;
-        color: #333;
-      }
-
-      .consent-checkbox a {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .consent-checkbox a:hover {
-        text-decoration: underline;
+      .start-button.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
       }
 
       .error-message {
@@ -162,31 +205,45 @@
         .subtitle {
           font-size: 1rem;
         }
+
+        .consent-section {
+          padding: 15px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Animal-AI Research Study</h1>
-      <p class="subtitle">Welcome to this research study based in the Animal AI environment</p>
+      <p class="loading-message" id="loading-message">Loading consent form&hellip;</p>
 
-      <div class="description">
-        <p>
-          In this study you must control the on-screen character with the W, A, S and D keys
-          to reach rewards (green and yellow balls). Further instructions will be provided in the following page.
-        </p>
-      </div>
+      <div id="consent-form" hidden>
+        <h1 id="experiment-title"></h1>
+        <p class="info-line" id="info-line"></p>
 
-      <div class="consent-section">
-        <div class="consent-checkbox">
-          <input type="checkbox" id="consent-checkbox">
-          <label for="consent-checkbox">
-            I have read and understood the <a href="#" id="consent-link" target="_blank" rel="noopener noreferrer">participant information and consent form</a>, and I consent to participating in this experiment.
-          </label>
+        <div class="consent-section">
+          <p class="info-sheet" id="info-sheet" hidden>
+            Before giving your consent, please read the
+            <a id="info-sheet-link" target="_blank" rel="noopener noreferrer">participant information sheet</a> (opens in a new tab).
+          </p>
+
+          <p class="consent-intro" id="consent-intro">
+            Please tick every box to confirm your consent. If you do not agree with any required statement,
+            do not proceed to the study. For online participation, electronic confirmation is used instead of
+            a handwritten signature.
+          </p>
+
+          <div class="consent-list" id="consent-list" role="group" aria-labelledby="consent-intro"></div>
+
+          <div class="consent-final">
+            <label class="consent-checkbox disabled" id="final-consent-label">
+              <input type="checkbox" id="final-consent-checkbox" disabled>
+              <span>Electronic confirmation: I confirm all of the statements above and consent to participate.</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <a href="tutorial.html" class="start-button">Start Experiment</a>
+      <a href="tutorial.html" class="start-button disabled" aria-disabled="true" tabindex="-1">Start Experiment</a>
     </div>
 
     <script>
@@ -196,15 +253,13 @@
       const experimentId = params[0] || '';
       const participantId = params[1] || '';
 
-      // Update the consent PDF link with the experiment ID
-      const consentLink = document.getElementById('consent-link');
-      if (experimentId) {
-        consentLink.href = `${CONFIG.S3_BASE_URL}/${encodeURIComponent(experimentId)}/consent_form.pdf`;
-      } else {
-        consentLink.textContent = 'consent form (error: no experiment ID found)';
-        consentLink.removeAttribute('href');
-        consentLink.style.color = 'red';
-      }
+      const loadingMessage = document.getElementById('loading-message');
+      const consentForm = document.getElementById('consent-form');
+      const consentList = document.getElementById('consent-list');
+      const finalCheckbox = document.getElementById('final-consent-checkbox');
+      const finalLabel = document.getElementById('final-consent-label');
+      const infoSheet = document.getElementById('info-sheet');
+      const infoSheetLink = document.getElementById('info-sheet-link');
 
       // Update the start button to pass along the parameters
       const startButton = document.querySelector('.start-button');
@@ -213,23 +268,210 @@
         startButton.href = `${currentHref}?${experimentId}&${participantId}`;
       }
 
-      // Handle consent checkbox
-      const consentCheckbox = document.getElementById('consent-checkbox');
       let validationPassed = false;
-      let consentGiven = false;
+      let errorShown = false;
 
-      consentCheckbox.addEventListener('change', function() {
-        consentGiven = this.checked;
-        updateStartButtonState();
-      });
+      function statementCheckboxes() {
+        return Array.from(consentList.querySelectorAll('input[type="checkbox"]'));
+      }
+
+      function allStatementsTicked() {
+        const boxes = statementCheckboxes();
+        return boxes.length > 0 && boxes.every(box => box.checked);
+      }
+
+      function canStart() {
+        return !errorShown && validationPassed && allStatementsTicked() && finalCheckbox.checked;
+      }
 
       function updateStartButtonState() {
-        if (validationPassed && consentGiven) {
-          startButton.style.pointerEvents = 'auto';
-          startButton.style.opacity = '1';
+        // The final confirmation only becomes available once every statement is ticked,
+        // and is cleared again if any statement is unticked
+        const finalAvailable = !errorShown && allStatementsTicked();
+        if (!finalAvailable) finalCheckbox.checked = false;
+        finalCheckbox.disabled = !finalAvailable;
+        finalLabel.classList.toggle('disabled', !finalAvailable);
+
+        const enabled = canStart();
+        startButton.classList.toggle('disabled', !enabled);
+        startButton.setAttribute('aria-disabled', String(!enabled));
+        if (enabled) {
+          startButton.removeAttribute('tabindex');
         } else {
-          startButton.style.pointerEvents = 'none';
-          startButton.style.opacity = '0.5';
+          startButton.setAttribute('tabindex', '-1');
+        }
+      }
+
+      // Guard against keyboard activation while the button is disabled
+      startButton.addEventListener('click', function(event) {
+        if (!canStart()) event.preventDefault();
+      });
+
+      consentList.addEventListener('change', updateStartButtonState);
+      finalCheckbox.addEventListener('change', updateStartButtonState);
+
+      // Parse CSV text into records (arrays of fields), handling quoted fields,
+      // escaped quotes ("") and line breaks inside quotes.
+      // NOTE: Keep in sync with ValidateConsentCsvFile.gs in aai_website_scripts, which validates uploads.
+      function parseCsv(text) {
+        const records = [];
+        let record = [];
+        let field = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (inQuotes) {
+            if (ch === '"' && text[i + 1] === '"') {
+              field += '"';
+              i++;
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              field += ch;
+            }
+          } else if (ch === '"') {
+            inQuotes = true;
+          } else if (ch === ',') {
+            record.push(field);
+            field = '';
+          } else if (ch === '\n' || ch === '\r') {
+            if (ch === '\r' && text[i + 1] === '\n') i++;
+            record.push(field);
+            records.push(record);
+            record = [];
+            field = '';
+          } else {
+            field += ch;
+          }
+        }
+        record.push(field);
+        records.push(record);
+        return records;
+      }
+
+      // Each line of the consent file is a single piece of text. Unquoted commas are
+      // treated as part of the text, and trailing empty columns (e.g. from Excel) are dropped.
+      function csvToLines(text) {
+        return parseCsv(text)
+          .map(fields => {
+            while (fields.length > 0 && fields[fields.length - 1].trim() === '') fields.pop();
+            return fields.join(',').trim();
+          })
+          .filter(line => line !== '');
+      }
+
+      // Decode as UTF-8, falling back to Windows-1252 for files saved as plain "CSV" by Excel
+      function decodeText(buffer) {
+        try {
+          return new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+        } catch (e) {
+          return new TextDecoder('windows-1252').decode(buffer);
+        }
+      }
+
+      // Render text, turning email addresses and web links into clickable links
+      function renderWithLinks(element, text) {
+        const pattern = /(https?:\/\/[^\s<>"]+|www\.[^\s<>"]+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
+        let lastIndex = 0;
+        let match;
+
+        while ((match = pattern.exec(text)) !== null) {
+          let linkText = match[0];
+          // Leave trailing punctuation (e.g. a full stop ending the sentence) outside the link
+          const trailing = linkText.match(/[.,;:!?)]+$/);
+          if (trailing) linkText = linkText.slice(0, -trailing[0].length);
+
+          element.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+
+          const link = document.createElement('a');
+          link.textContent = linkText;
+          if (linkText.includes('@') && !/^(https?:\/\/|www\.)/.test(linkText)) {
+            link.href = `mailto:${linkText}`;
+          } else {
+            link.href = linkText.startsWith('www.') ? `https://${linkText}` : linkText;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+          }
+          element.appendChild(link);
+
+          lastIndex = match.index + linkText.length;
+        }
+        element.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+
+      function renderConsentForm(lines) {
+        const [title, infoLine, ...statements] = lines;
+
+        document.getElementById('experiment-title').textContent = title;
+        document.title = title;
+        renderWithLinks(document.getElementById('info-line'), infoLine);
+
+        statements.forEach((statement, index) => {
+          const item = document.createElement('div');
+          item.className = 'consent-item';
+
+          const label = document.createElement('label');
+          label.className = errorShown ? 'consent-checkbox disabled' : 'consent-checkbox';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = `consent-statement-${index}`;
+          checkbox.disabled = errorShown;
+
+          const text = document.createElement('span');
+          text.textContent = statement;
+
+          label.appendChild(checkbox);
+          label.appendChild(text);
+          item.appendChild(label);
+          consentList.appendChild(item);
+        });
+
+        loadingMessage.hidden = true;
+        consentForm.hidden = false;
+        updateStartButtonState();
+      }
+
+      // Load the experiment's consent form (title, information line, consent statements) from S3
+      async function loadConsentForm() {
+        let lines;
+        try {
+          const consentUrl = `${CONFIG.S3_BASE_URL}/${encodeURIComponent(experimentId)}/consent_form.csv`;
+          const response = await fetch(consentUrl);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          lines = csvToLines(decodeText(await response.arrayBuffer()));
+        } catch (error) {
+          console.error('Consent form load error:', error);
+          invalidLinkError('E946');
+          return;
+        }
+
+        // Need a title, an information line and at least one consent statement
+        if (lines.length < 3) {
+          console.error(`Consent form has ${lines.length} non-empty line(s); expected at least 3`);
+          invalidLinkError('E947');
+          return;
+        }
+
+        renderConsentForm(lines);
+      }
+
+      // Show the participant information sheet link only if the researcher uploaded one (it's optional).
+      // Uses a plain GET like the other S3 files, aborted once the headers arrive so the PDF isn't downloaded.
+      async function checkInfoSheet() {
+        const infoSheetUrl = `${CONFIG.S3_BASE_URL}/${encodeURIComponent(experimentId)}/participant_information.pdf`;
+        const controller = new AbortController();
+        try {
+          const response = await fetch(infoSheetUrl, { signal: controller.signal });
+          if (response.ok) {
+            infoSheetLink.href = infoSheetUrl;
+            infoSheet.hidden = false;
+          }
+        } catch (error) {
+          // No information sheet (S3 rejects requests for missing files): leave the sentence hidden
+        } finally {
+          controller.abort();
         }
       }
 
@@ -239,11 +481,6 @@
 
       // Validate participant ID
       async function validateParticipantId() {
-        if (!experimentId || !participantId) {
-          invalidLinkError('E942');
-          return;
-        }
-
         try {
           // Call the lifecycle lambda to validate the participant ID
           const lambdaUrl = CONFIG.LIFECYCLE_LAMBDA_URL;
@@ -287,17 +524,8 @@
             startButton.href = experimentUrl;
           }
 
-          // If validation passes, enable links and update start button based on consent
-          validationPassed = true;
-
-          const allLinks = document.querySelectorAll('a');
-          allLinks.forEach(link => {
-            link.style.pointerEvents = 'auto';
-            link.style.opacity = '1';
-            link.style.cursor = 'pointer';
-          });
-
           // Update start button state (requires both validation and consent)
+          validationPassed = true;
           updateStartButtonState();
         } catch (error) {
           console.error('Validation error:', error);
@@ -320,17 +548,13 @@
       }
 
       function showError(message) {
-        // Disable the start button
-        startButton.style.pointerEvents = 'none';
-        startButton.style.opacity = '0.5';
+        errorShown = true;
+        loadingMessage.hidden = true;
 
-        // Disable all links on the page
-        const allLinks = document.querySelectorAll('a');
-        allLinks.forEach(link => {
-          link.style.pointerEvents = 'none';
-          link.style.opacity = '0.5';
-          link.style.cursor = 'not-allowed';
-        });
+        // Disable the consent checkboxes and the start button
+        statementCheckboxes().forEach(box => { box.disabled = true; });
+        consentList.querySelectorAll('.consent-checkbox').forEach(label => label.classList.add('disabled'));
+        updateStartButtonState();
 
         // Create and display error message
         const container = document.querySelector('.container');
@@ -344,18 +568,14 @@
         }
       }
 
-      // Disable start button and all links initially
-      startButton.style.pointerEvents = 'none';
-      startButton.style.opacity = '0.5';
-
-      const allLinks = document.querySelectorAll('a');
-      allLinks.forEach(link => {
-        link.style.pointerEvents = 'none';
-        link.style.opacity = '0.5';
-      });
-
-      // Run validation on page load
-      validateParticipantId();
+      // Load the consent form and validate the participant in parallel on page load
+      if (!experimentId || !participantId) {
+        invalidLinkError('E942');
+      } else {
+        loadConsentForm();
+        checkInfoSheet();
+        validateParticipantId();
+      }
     </script>
   </body>
 </html>
