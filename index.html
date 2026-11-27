@@ -237,6 +237,12 @@
             <a id="info-sheet-link" target="_blank" rel="noopener noreferrer">participant information sheet</a> (opens in a new tab).
           </p>
 
+          <p class="consent-intro">
+            If you are taking part through Prolific, we store your Prolific ID in case we need to contact you. Between six and
+            seven months after you take part, that ID is replaced with a random code, after which your responses
+            can no longer be linked to you or withdrawn.
+          </p>
+
           <p class="consent-intro" id="consent-intro">
             Please tick every box to confirm your consent. If you do not agree with any required statement,
             do not proceed to the study. For online participation, electronic confirmation is used instead of
@@ -265,9 +271,11 @@
     <script>
       // Extract query parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const params = Array.from(urlParams.keys());
-      const experimentId = params[0] || '';
-      const participantId = params[1] || '';
+      const experimentId = urlParams.get('experiment_id') || '';
+      const participantId = urlParams.get('participant_id') || '';
+
+      // The query string that identifies the experiment and participant to every page of the site
+      const idQuery = `?experiment_id=${encodeURIComponent(experimentId)}&participant_id=${encodeURIComponent(participantId)}`;
 
       const loadingMessage = document.getElementById('loading-message');
       const consentForm = document.getElementById('consent-form');
@@ -279,10 +287,7 @@
 
       // Update the start button to pass along the parameters
       const startButton = document.querySelector('.start-button');
-      const currentHref = startButton.getAttribute('href');
-      if (experimentId && participantId) {
-        startButton.href = `${currentHref}?${experimentId}&${participantId}`;
-      }
+      startButton.href = startButton.getAttribute('href') + idQuery;
 
       let validationPassed = false;
       let errorShown = false;
@@ -533,11 +538,7 @@
 
           // If the participant has completed at least one level, skip the tutorial
           if (innerJson.attempted_arenas && innerJson.attempted_arenas.length > 0) {
-            let experimentUrl = 'Build/index.html';
-            if (experimentId && participantId) {
-              experimentUrl += `?${experimentId}&${participantId}`;
-            }
-            startButton.href = experimentUrl;
+            startButton.href = 'Build/index.html' + idQuery;
           }
 
           // Update start button state (requires both validation and consent)
@@ -550,7 +551,7 @@
       }
 
       function showAlreadyCompleted() {
-        const completionUrl = `completion.html?experiment_id=${encodeURIComponent(experimentId)}&participant_id=${encodeURIComponent(participantId)}`;
+        const completionUrl = 'completion.html' + idQuery;
 
         const container = document.querySelector('.container');
         container.innerHTML = `

@@ -266,15 +266,11 @@
 
       // Extract URL parameters so they can be forwarded to the experiment page
       const urlParams = new URLSearchParams(window.location.search);
-      const params = Array.from(urlParams.keys());
-      const experimentId = params[0] || '';
-      const participantId = params[1] || '';
+      const experimentId = urlParams.get('experiment_id') || '';
+      const participantId = urlParams.get('participant_id') || '';
 
       // Build the experiment page URL (same parameters, different page)
-      let experimentUrl = 'Build/index.html';
-      if (experimentId && participantId) {
-        experimentUrl += '?' + experimentId + '&' + participantId;
-      }
+      const experimentUrl = `Build/index.html?experiment_id=${encodeURIComponent(experimentId)}&participant_id=${encodeURIComponent(participantId)}`;
 
       // Load tutorial instructions from S3 and populate the modal
       const s3Base = CONFIG.S3_BASE_URL;
